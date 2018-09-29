@@ -7,6 +7,7 @@
 
 ATDMPlayerController::ATDMPlayerController()
 {
+	// Set some mouse defaults
 	bRightMouseDown = false;
 	bShowMouseCursor = true;
 	bEnableTouchEvents = false;
