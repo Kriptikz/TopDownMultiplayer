@@ -40,4 +40,12 @@ protected:
 	UFUNCTION()
 	void RightMouseReleased();
 
+	/**
+	 * Server function called from the client to handle the players right click.
+	 *
+	 * @param MouseX The current x location of the mouse on the client screen.
+	 * @param MouseY The current y location of the mouse on the client screen.
+	 */
+	UFUNCTION(Server, WithValidation, Reliable)
+	void ServerOnRightClick(float MouseX, float MouseY);
 };

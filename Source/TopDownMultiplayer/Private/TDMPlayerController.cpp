@@ -21,6 +21,14 @@ void ATDMPlayerController::Tick(float DeltaSeconds)
 	{
 		// Tell the server we right clicked and send updated mouse location
 
+		float MouseX;
+		float MouseY;
+
+		if (GetMousePosition(MouseX, MouseY))
+		{
+			ServerOnRightClick(MouseX, MouseY);
+		}
+
 	}
 }
 
@@ -41,3 +49,14 @@ void ATDMPlayerController::RightMouseReleased()
 {
 	bRightMouseDown = false;
 }
+
+void ATDMPlayerController::ServerOnRightClick_Implementation(float MouseX, float MouseY)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ServerOnRightClick"));
+}
+
+bool ATDMPlayerController::ServerOnRightClick_Validate(float MouseX, float MouseY)
+{
+	return true;
+}
+
