@@ -21,11 +21,13 @@ void ATDMPlayerController::Tick(float DeltaSeconds)
 	{
 		// Tell the server we right clicked and send updated mouse location
 
-		float MouseX;
-		float MouseY;
+		FVector MouseLocationWorldSpace;
+		FVector MouseDirectionWorldSpace;
 
-		if (GetMousePosition(MouseX, MouseY))
+		if (DeprojectMousePositionToWorld(MouseLocationWorldSpace, MouseDirectionWorldSpace))
 		{
+			float MouseX = MouseLocationWorldSpace.X;
+			float MouseY = MouseLocationWorldSpace.Y;
 			ServerOnRightClick(MouseX, MouseY);
 		}
 
@@ -52,7 +54,10 @@ void ATDMPlayerController::RightMouseReleased()
 
 void ATDMPlayerController::ServerOnRightClick_Implementation(float MouseX, float MouseY)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ServerOnRightClick"));
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("MouseX: %f \n MouseY: %f "), MouseX, MouseY));
+	}
 }
 
 bool ATDMPlayerController::ServerOnRightClick_Validate(float MouseX, float MouseY)
