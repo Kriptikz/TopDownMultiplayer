@@ -43,8 +43,8 @@ protected:
 	/**
 	 * Server function called from the client while bRightMouseDown is true to handle the players right click.
 	 *
-	 * @param MouseX The current x location of the mouse on the client screen.
-	 * @param MouseY The current y location of the mouse on the client screen.
+	 * @param MouseX The current x location of the mouse in the world from the client screen.
+	 * @param MouseY The current y location of the mouse in the world from the client screen.
 	 */
 	UFUNCTION(Server, WithValidation, Reliable)
 	void ServerOnRightClick(float MouseX, float MouseY);

@@ -21,13 +21,18 @@ void ATDMPlayerController::Tick(float DeltaSeconds)
 	{
 		// Tell the server we right clicked and send updated mouse location
 
+
+		// Convert our mouse location on our screen (which is in 2D) to world space (3D)
 		FVector MouseLocationWorldSpace;
 		FVector MouseDirectionWorldSpace;
 
 		if (DeprojectMousePositionToWorld(MouseLocationWorldSpace, MouseDirectionWorldSpace))
 		{
+			// Extract the X and Y from our mouse world space location
 			float MouseX = MouseLocationWorldSpace.X;
 			float MouseY = MouseLocationWorldSpace.Y;
+
+			// Send RPC to server notifying that we have done a right click on the client and giving the location we right clicked from
 			ServerOnRightClick(MouseX, MouseY);
 		}
 
@@ -38,6 +43,7 @@ void ATDMPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	// Bind action inputs
 	InputComponent->BindAction("RightClick", IE_Pressed, this, &ATDMPlayerController::RightMousePressed);
 	InputComponent->BindAction("RightClick", IE_Released, this, &ATDMPlayerController::RightMouseReleased);
 }
@@ -54,14 +60,12 @@ void ATDMPlayerController::RightMouseReleased()
 
 void ATDMPlayerController::ServerOnRightClick_Implementation(float MouseX, float MouseY)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("MouseX: %f \n MouseY: %f "), MouseX, MouseY));
-	}
+	// Need the angle of the camera setup so we can line trace from our MouseX and Y world space locations
 }
 
 bool ATDMPlayerController::ServerOnRightClick_Validate(float MouseX, float MouseY)
 {
+	// Nothing to validate currently
 	return true;
 }
 
