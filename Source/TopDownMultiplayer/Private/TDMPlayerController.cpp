@@ -8,6 +8,8 @@
 ATDMPlayerController::ATDMPlayerController()
 {
 	bRightMouseDown = false;
+	bShowMouseCursor = true;
+	bEnableTouchEvents = false;
 }
 
 void ATDMPlayerController::Tick(float DeltaSeconds)
