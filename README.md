@@ -1,5 +1,5 @@
 # TopDownMultiplayer
-This is a Top-Down Multiplayer Template for use as a starting point in any Unreal Engine 4 projects.
+This is a Top-Down Multiplayer Template written using C++ and Blueprint for use as a starting point in any Unreal Engine 4 projects.
 
 Current Engine Version of this project : 4.20.3
 
