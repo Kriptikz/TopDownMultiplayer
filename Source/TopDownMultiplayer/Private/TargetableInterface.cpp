@@ -13,7 +13,7 @@ bool ITargetableInterface::IsNULL()
 
 bool ITargetableInterface::IsFloor()
 {
-		if (GetTargetableType() == ETargetableType::TT_Floor)
+	if (GetTargetableType() == ETargetableType::TT_Floor)
 	{
 		return true;
 	}
