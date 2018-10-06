@@ -38,6 +38,7 @@ protected:
 	UPROPERTY()
 	FTimerHandle MoveCommandTimerHandle;
 
+	/** A function delegate that should be set to the MoveCommand server function in the constructor, used so our delegate can have a parameter */
 	FTimerDelegate MoveCommandTimerDelegate;
 
 	/** This is where we setup our input delegates. These will call local functions which will send an RPC to call the server side version. */
@@ -52,7 +53,7 @@ protected:
 	void MoveCommandKeyReleased();
 
 	/**
-	 * Server function called from a timer every 0.1 seconds
+	 * Server function called from a timer every 0.1 seconds to handle updating our target goal/actor
 	 *
 	 * @param CurrentHitResult The FHitResult in the PlayerController on the client at the time this function was called
 	 */
