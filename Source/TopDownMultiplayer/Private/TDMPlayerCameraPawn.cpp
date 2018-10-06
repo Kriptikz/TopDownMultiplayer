@@ -51,7 +51,7 @@ void ATDMPlayerCameraPawn::Tick(float DeltaTime)
 	{
 		if (GetController())
 		{
-			if (GetController()->bHasCh)
+			return;
 		}
 	}
 }
