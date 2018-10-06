@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "TimerManager.h"
 #include "TDMPlayerController.generated.h"
 
 /**
@@ -25,27 +26,36 @@ public:
 
 protected:
 
-	/** A toggle for handling when the right mouse button is held down, checked on tick. */
-	UPROPERTY(BlueprintReadOnly, Category = "Input")
-	bool bRightMouseDown;
+	/** Current client cursor hit result, updated in tick */
+	UPROPERTY()
+	FHitResult CurrentCursorHitResult;
+
+	/** The rate at which we call our ServerMoveCommand RPC while the MoveCommand key is pressed */
+	UPROPERTY()
+	float MoveCommandRPCRate;
+
+	/** Timer runs based on our MoveCommandRPCRate to call the ServerMoveCommand and pass in the CurrentHitResult */
+	UPROPERTY()
+	FTimerHandle MoveCommandTimerHandle;
+
+	FTimerDelegate MoveCommandTimerDelegate;
 
 	/** This is where we setup our input delegates. These will call local functions which will send an RPC to call the server side version. */
 	virtual void SetupInputComponent() override;
 
-	/** Client function delegate for when the right mouse button is pressed, it will toggle our bool bRightMouseDown to true where it is checked on tick. */
+	/** Client function delegate for when the move command key is pressed, it will start our timer that calls our ServerMoveCommand. */
 	UFUNCTION()
-	void RightMousePressed();
+	void MoveCommandKeyPressed();
 
-	/** Client function delegate for when the right mouse button is released, it will toggle our bool bRightMouseDown to false where it is checked on tick. */
+	/** Client function delegate for when the move command is released, it will stop our timer that calls our ServerMoveCommand. */
 	UFUNCTION()
-	void RightMouseReleased();
+	void MoveCommandKeyReleased();
 
 	/**
-	 * Server function called from the client while bRightMouseDown is true to handle the players right click.
+	 * Server function called from a timer every 0.1 seconds
 	 *
-	 * @param MouseX The current x location of the mouse in the world from the client screen.
-	 * @param MouseY The current y location of the mouse in the world from the client screen.
+	 * @param CurrentHitResult The FHitResult in the PlayerController on the client at the time this function was called
 	 */
 	UFUNCTION(Server, WithValidation, Reliable)
-	void ServerOnRightClick(float MouseX, float MouseY);
+	void ServerMoveCommand(FHitResult CurrentHitResult);
 };
