@@ -25,13 +25,33 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
+	
+	/** The rate at which we call our ClientUpdateCurrentCursorData function while the timer is active */
+	UPROPERTY(EditDefaultsOnly, Category = "Rates")
+	float UpdateCursorDataRate;
 
-	/** Current client cursor hit result, updated in tick */
-	UPROPERTY()
+	/** Current client cursor hit result, updated using ClientUpdateCurrentCursorData  */
+	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
 	FHitResult CurrentCursorHitResult;
 
-	/** The rate at which we call our ServerMoveCommand RPC while the MoveCommand key is pressed */
+	/** A conversion of our ECC_Floor trace channel to an ETraceTypeQuery */
 	UPROPERTY()
+	TEnumAsByte<ETraceTypeQuery> TTQ_Floor;
+
+	/** A conversion of our ECC_Targetable trace channel to an ETraceTypeQuery */
+	UPROPERTY()
+	TEnumAsByte<ETraceTypeQuery> TTQ_Targetable;
+
+	/** Current client cursor aimed location on the floor */
+	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
+	FVector_NetQuantize CurrentCursorAimedLocation;
+
+	/** Timer that updates our current cursor data every 0.1s */
+	UPROPERTY()
+	FTimerHandle UpdateCursorDataTimerHandle;
+
+	/** The rate at which we call our ServerMoveCommand RPC while the MoveCommand key is pressed */
+	UPROPERTY(EditDefaultsOnly, Category = "Rates")
 	float MoveCommandRPCRate;
 
 	/** Timer runs based on our MoveCommandRPCRate to call the ServerMoveCommand and pass in the CurrentHitResult */
@@ -59,4 +79,13 @@ protected:
 	 */
 	UFUNCTION(Server, WithValidation, Reliable)
 	void ServerMoveCommand(FHitResult CurrentHitResult);
+
+	/**
+	 * Delegate function called from a timer every 0.1 seconds to handle updating our controller variables: CurrentCursorHitResult CurrentCursorAimedLocation
+	 */
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateCurrentCursorData();
+
+	virtual void BeginPlay() override;
+
 };
