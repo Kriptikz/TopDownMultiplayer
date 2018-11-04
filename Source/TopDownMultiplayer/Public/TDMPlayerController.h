@@ -20,11 +20,20 @@ class TOPDOWNMULTIPLAYER_API ATDMPlayerController : public APlayerController
 public:
 
 	ATDMPlayerController();
-	
-
-	virtual void Tick(float DeltaSeconds) override;
 
 protected:
+
+	/** The class of the character we want to spawn and control */
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	TSubclassOf<ATDMCharacter> SpawnCharacterClass;
+
+	/** Our Currently controlled character */
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+	ATDMCharacter* ControlledCharacter;
+
+	/** Our Currently controlled characters AI controller */
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+	AAIController* CharacterAIController;
 	
 	/** The rate at which we call our ClientUpdateCurrentCursorData function while the timer is active */
 	UPROPERTY(EditDefaultsOnly, Category = "Rates")
@@ -58,19 +67,20 @@ protected:
 	UPROPERTY()
 	FTimerHandle MoveCommandTimerHandle;
 
-	/** A function delegate that should be set to the MoveCommand server function in the constructor, used so our delegate can have a parameter */
-	FTimerDelegate MoveCommandTimerDelegate;
-
 	/** This is where we setup our input delegates. These will call local functions which will send an RPC to call the server side version. */
 	virtual void SetupInputComponent() override;
 
-	/** Client function delegate for when the move command key is pressed, it will start our timer that calls our ServerMoveCommand. */
+	/** Client function called for when the move command key is pressed, it will start our timer that calls our ClientSendMoveCommand function. */
 	UFUNCTION()
 	void MoveCommandKeyPressed();
 
-	/** Client function delegate for when the move command is released, it will stop our timer that calls our ServerMoveCommand. */
+	/** Client function called for when the move command is released, it will stop our timer that calls our CliendSendMoveCommand. */
 	UFUNCTION()
 	void MoveCommandKeyReleased();
+
+	/** Client function delegate used in our timer that is send in MoveCommandKeyPressed() */
+	UFUNCTION(Client, Reliable)
+	void ClientSendMoveCommand();
 
 	/**
 	 * Server function called from a timer every 0.1 seconds to handle updating our target goal/actor
@@ -87,5 +97,18 @@ protected:
 	void ClientUpdateCurrentCursorData();
 
 	virtual void BeginPlay() override;
+
+public:
+	
+	virtual void Tick(float DeltaSeconds) override;
+
+	
+	virtual void Possess(APawn* aPawn) override;
+
+	UFUNCTION(BlueprintCallable)
+	ATDMCharacter* GetControlledCharacter();
+
+	UFUNCTION(BlueprintCallable)
+	AAIController* GetCharacterAIController();
 
 };

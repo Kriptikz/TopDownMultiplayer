@@ -3,13 +3,14 @@
 #include "TDMPlayerController.h"
 #include "TopDownMultiplayer.h"
 #include "DrawDebugHelpers.h"
+#include "Blueprint//AIBlueprintHelperLibrary.h"
+#include "AIController.h"
+#include "TDMCharacter.h"
 
 
 
 ATDMPlayerController::ATDMPlayerController()
 {
-	// Set up our MoveCommandTimer function delegate
-	MoveCommandTimerDelegate = FTimerDelegate::CreateUObject(this, &ATDMPlayerController::ServerMoveCommand, CurrentCursorHitResult);
 
 	// Set up our TTQ_Floor and TTQ_Targetable
 	TTQ_Floor = UEngineTypes::ConvertToTraceType(ECC_Floor);
@@ -24,6 +25,29 @@ ATDMPlayerController::ATDMPlayerController()
 	// Set some mouse defaults
 	bShowMouseCursor = true;
 	bEnableTouchEvents = false;
+}
+
+void ATDMPlayerController::Possess(APawn* aPawn)
+{
+	Super::Possess(aPawn);
+
+	// Ensure we are only doing this server side
+	if (Role == ROLE_Authority)
+	{
+		FTransform SpawnTransform;
+		SpawnTransform = aPawn->GetActorTransform();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		// Spawn the Character we will control and cache a reference
+		ControlledCharacter = (ATDMCharacter*) GetWorld()->SpawnActor(SpawnCharacterClass, &SpawnTransform, SpawnParams);
+
+		// Spawn the AIController that will handle pathfinding replicated movement and cache a reference
+		CharacterAIController = (AAIController*) GetWorld()->SpawnActor(AAIController::StaticClass(), &SpawnTransform, SpawnParams);
+
+		// Set the AIController to Possess the Character
+		CharacterAIController->Possess(ControlledCharacter);
+	}
 }
 
 void ATDMPlayerController::BeginPlay()
@@ -42,6 +66,16 @@ void ATDMPlayerController::Tick(float DeltaSeconds)
 
 }
 
+ATDMCharacter* ATDMPlayerController::GetControlledCharacter()
+{
+	return ControlledCharacter;
+}
+
+AAIController* ATDMPlayerController::GetCharacterAIController()
+{
+	return CharacterAIController;
+}
+
 void ATDMPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -54,7 +88,8 @@ void ATDMPlayerController::SetupInputComponent()
 void ATDMPlayerController::MoveCommandKeyPressed()
 {
 	// Start our MoveCommand Timer
-	GetWorldTimerManager().SetTimer(MoveCommandTimerHandle, MoveCommandTimerDelegate, MoveCommandRPCRate, true, 0.0f);
+	ClientUpdateCurrentCursorData();
+	GetWorldTimerManager().SetTimer(MoveCommandTimerHandle, this, &ATDMPlayerController::ClientSendMoveCommand, MoveCommandRPCRate, true, 0.0f);
 }
 
 void ATDMPlayerController::MoveCommandKeyReleased()
@@ -63,12 +98,17 @@ void ATDMPlayerController::MoveCommandKeyReleased()
 	GetWorldTimerManager().ClearTimer(MoveCommandTimerHandle);
 }
 
+void ATDMPlayerController::ClientSendMoveCommand_Implementation()
+{
+	ServerMoveCommand(CurrentCursorHitResult);
+}
+
 void ATDMPlayerController::ClientUpdateCurrentCursorData_Implementation()
 {
 	// Update CurrentCursorHitResult
-	GetHitResultUnderCursorByChannel(TTQ_Targetable, false, CurrentCursorHitResult);
+	GetHitResultUnderCursorByChannel(TTQ_Targetable, true, CurrentCursorHitResult);
 
-	// Update CurrentCursorAimedLocation by doing a line trace and getting the hit location
+	// Update CurrentCursorAimedLocation by doing a line trace directly to the floor and getting the hit location
 	FHitResult HitResult;
 
 	GetHitResultUnderCursorByChannel(TTQ_Floor, true, HitResult);
@@ -78,6 +118,14 @@ void ATDMPlayerController::ClientUpdateCurrentCursorData_Implementation()
 void ATDMPlayerController::ServerMoveCommand_Implementation(FHitResult CurrentHitResult)
 {
 	// Implement movement
+
+	UE_LOG(LogTemp, Warning, TEXT("SERVER MOVE COMMAND"));
+
+	if (CharacterAIController)
+	{
+		CharacterAIController->MoveToLocation(CurrentHitResult.Location);
+	}
+
 }
 
 bool ATDMPlayerController::ServerMoveCommand_Validate(FHitResult CurrentHitResult)
