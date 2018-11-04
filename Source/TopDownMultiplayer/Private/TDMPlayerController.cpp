@@ -6,6 +6,7 @@
 #include "Blueprint//AIBlueprintHelperLibrary.h"
 #include "AIController.h"
 #include "TDMCharacter.h"
+#include "TargetableInterface.h"
 
 
 
@@ -20,7 +21,7 @@ ATDMPlayerController::ATDMPlayerController()
 	MoveCommandRPCRate = 0.1f;
 
 	// Rate at which we update our client controllers CurrentCursor data.
-	UpdateCursorDataRate = 0.05f;
+	UpdateCursorDataRate = 0.02f;
 
 	// Set some mouse defaults
 	bShowMouseCursor = true;
@@ -106,7 +107,11 @@ void ATDMPlayerController::ClientSendMoveCommand_Implementation()
 void ATDMPlayerController::ClientUpdateCurrentCursorData_Implementation()
 {
 	// Update CurrentCursorHitResult
-	GetHitResultUnderCursorByChannel(TTQ_Targetable, true, CurrentCursorHitResult);
+	if (GetHitResultUnderCursorByChannel(TTQ_Targetable, true, CurrentCursorHitResult))
+	{
+		HoveredActor = CurrentCursorHitResult.GetActor();
+	}
+
 
 	// Update CurrentCursorAimedLocation by doing a line trace directly to the floor and getting the hit location
 	FHitResult HitResult;
@@ -123,7 +128,7 @@ void ATDMPlayerController::ServerMoveCommand_Implementation(FHitResult CurrentHi
 
 	if (CharacterAIController)
 	{
-		CharacterAIController->MoveToLocation(CurrentHitResult.Location);
+		CharacterAIController->MoveToLocation(CurrentHitResult.Location, 1.0f);
 	}
 
 }

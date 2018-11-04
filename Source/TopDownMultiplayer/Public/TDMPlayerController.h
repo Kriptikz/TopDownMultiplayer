@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
+#include "UObject/ScriptInterface.h"
+#include "TargetableInterface.h"
 #include "TDMPlayerController.generated.h"
 
 /**
@@ -42,6 +44,18 @@ protected:
 	/** Current client cursor hit result, updated using ClientUpdateCurrentCursorData  */
 	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
 	FHitResult CurrentCursorHitResult;
+
+	/** The currently hovered actor that is targetable */
+	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
+	TScriptInterface<ITargetableInterface> HoveredActor;
+
+	/** The currently selected actor */
+	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
+	TScriptInterface<ITargetableInterface> SelectedActor;
+
+	/** The currently targeted actor */
+	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
+	TScriptInterface<ITargetableInterface> TargetActor;
 
 	/** A conversion of our ECC_Floor trace channel to an ETraceTypeQuery */
 	UPROPERTY()
