@@ -49,10 +49,20 @@ void ATDMPlayerCameraPawn::Tick(float DeltaTime)
 
 	if (bLockedScreen)
 	{
-		if (GetController())
+		if (GetCachedPlayerController())
 		{
-			return;
+			SetActorLocation(GetCachedPlayerController()->GetCharacter()->GetActorLocation(), false);
 		}
 	}
+}
+
+ATDMPlayerController* ATDMPlayerCameraPawn::GetCachedPlayerController()
+{
+	if (!TDMPlayerController)
+	{
+		TDMPlayerController = Cast<ATDMPlayerController>(GetController());
+	}
+
+	return TDMPlayerController;
 }
 

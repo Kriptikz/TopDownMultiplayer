@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UCameraComponent* CameraComp;
 
+	/** A cached version of our TDMPlayerController so we aren't casting in tick */
+	UPROPERTY(VisibleAnywhere, Category = "Cache")
+	ATDMPlayerController* TDMPlayerController;
+
 	/** The toggle for camera to auto follow currently controlled character */
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	bool bLockedScreen;
@@ -41,5 +45,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	/** Gets our TDMPlayerController, if it's null tries to cast from GetController() to cache it */
+	UFUNCTION()
+	ATDMPlayerController* GetCachedPlayerController();
 
 };

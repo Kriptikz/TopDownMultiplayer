@@ -124,11 +124,21 @@ void ATDMPlayerController::ServerMoveCommand_Implementation(FHitResult CurrentHi
 {
 	// Implement movement
 
-	UE_LOG(LogTemp, Warning, TEXT("SERVER MOVE COMMAND"));
-
 	if (CharacterAIController)
 	{
-		CharacterAIController->MoveToLocation(CurrentHitResult.Location, 1.0f);
+		TargetActor = CurrentHitResult.GetActor();
+
+		if (!TargetActor->IsNULL())
+		{
+			if (TargetActor->IsFloor())
+			{
+				CharacterAIController->MoveToLocation(CurrentHitResult.Location);
+			}
+			else
+			{
+				CharacterAIController->MoveToActor(CastChecked<AActor>(TargetActor.GetObject()));
+			}
+		}
 	}
 
 }
