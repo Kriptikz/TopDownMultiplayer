@@ -6,7 +6,7 @@ Current Engine Version of this project : 4.20.3
 For the current state of this project visit : https://github.com/Kriptikz/TopDownMultiplayer/projects/1
 
 # What is the goal of this template?
-  This template was created so people can easily get a Top-Down camera perspective and use it to control and command a unit in a multiplayer environment where the server is authoritative. In order to achieve this, I am using a simple command system where the PlayerController has different RPC's you can use to send these commands to the proper place; You can have commands run only on this client, run only on the server, or run on the server and all clients. Each command is ran immediately once it is recieved and there is no plan to use a queue atm. Some commands will already be added and these include: MoveToLocation, MoveToActor, Attack, and Interact.
+  This template was created so people can easily get a Top-Down camera perspective and use it to control and command a unit in a multiplayer environment where the server is authoritative. In order to achieve this, I am using a simple command system where the PlayerController has different RPC's you can use to send these commands to the proper place; You can have commands run only on this client, run only on the server, or run on the server and all clients. Some commands will already be added and these include: MoveToLocation, MoveToActor, Attack, and Interact.
   For the camera I have two options:
   1.) Use the one on each Character and move it around as necessary.
   2.) Create a very simple actor with a SpringArm and Camera component and move it around as necessary.
