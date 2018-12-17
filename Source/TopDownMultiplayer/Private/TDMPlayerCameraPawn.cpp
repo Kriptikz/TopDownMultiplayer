@@ -3,6 +3,8 @@
 #include "TDMPlayerCameraPawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "TDMPlayerController.h"
+#include "TDMCharacter.h"
 
 
 // Sets default values
@@ -49,9 +51,10 @@ void ATDMPlayerCameraPawn::Tick(float DeltaTime)
 
 	if (bLockedScreen)
 	{
-		if (GetCachedPlayerController())
+		ATDMCharacter* ControlledCharacter = Cast<ATDMCharacter>(GetCachedPlayerController()->GetCharacter());
+		if (ControlledCharacter)
 		{
-			SetActorLocation(GetCachedPlayerController()->GetCharacter()->GetActorLocation(), false);
+			//SetActorLocation(GetCachedPlayerController()->GetCharacter()->GetActorLocation(), false);
 		}
 	}
 }
