@@ -18,7 +18,6 @@ This is our custom ability task for handling movement and pathfinding:
   
   For the camera I will create a very simple actor with a SpringArm and Camera component and move it around as necessary. This actor will be called TDMPlayerCamera. Anytime the PlayerController possesses a Character we will change the camera from our Character to our TDMPlayerCamera.
   
-  Option #2 seems like it will be easier to control in a lot of different ways so I will use it for the template. One problem is if the Character gets destroyed where will the Camera be? I can also easily create a spectator and can use the same Camera.
 
 # How to use this template?
 -
