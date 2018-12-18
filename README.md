@@ -6,7 +6,8 @@ Current Engine Version of this project : 4.20.3
 For the current state of this project visit : https://github.com/Kriptikz/TopDownMultiplayer/projects/1
 
 # What is the goal of this template?
-  This template was created so people can easily get a Top-Down camera perspective and use it to control and call abilities on a unit in a multiplayer environment where the server is authoritative. In order to achieve this I am using the GameplayAbilities API. The movement and pathfinding of the Character is handled in the following ability task:
+  This template was created so people can easily get a Top-Down camera perspective and use it to control and call abilities on a unit in a multiplayer environment where the server is authoritative. In order to achieve this I am using the GameplayAbilities API. The movement and pathfinding of the Character is handled in an ability task and the cursor hovered actor and target location are networked inside of the Ability using the WaitTargetData() ability task where it is send over using our custom GameplayAbilityTargetActor_CursorTargetData. The data being sent is a simple FVector and AActo; Where the Client has this data being updated constantly, It is only sent to the server when it is asked for.
+This is our custom ability task for handling movement and pathfinding:
   
 ```C++
   UAbilityTask_GetInRange* UAbilityTask_GetInRange::GetInRange(UGameplayAbility* OwningAbility, FName TaskInstanceName, FVector TargetLocation, AActor* TargetActor)
