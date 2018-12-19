@@ -10,7 +10,7 @@ For the current state of this project visit : https://github.com/Kriptikz/TopDow
 This is our custom ability task for handling movement and pathfinding:
   
 ```C++
-  UAbilityTask_MoveToTarget* UAbilityTask_GetInRange::MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, FVector TargetLocation, AActor* TargetActor)
+  UAbilityTask_MoveToTarget* UAbilityTask_MoveToTarget::MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, FVector TargetLocation, AActor* TargetActor)
 ```
   This ability task moves a Character within the specified Range of the location or actor and then broadcasts a call to the TargetRangeReached delegate.
   Range is usually passed in from getting a Characters attack range. Lowest Range is 10.0f and can be move to a target location directly.
