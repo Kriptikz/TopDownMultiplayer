@@ -4,9 +4,9 @@
 #include "TopDownMultiplayer.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint//AIBlueprintHelperLibrary.h"
-#include "AIController.h"
 #include "TDMCharacter.h"
 #include "TargetableInterface.h"
+#include "Net/UnrealNetwork.h"
 
 
 
@@ -17,10 +17,8 @@ ATDMPlayerController::ATDMPlayerController()
 	TTQ_Floor = UEngineTypes::ConvertToTraceType(ECC_Floor);
 	TTQ_Targetable = UEngineTypes::ConvertToTraceType(ECC_Targetable);
 
-	// Set up to have our timer run ever 0.1 seconds to issue ServerMoveCommand RPC
-	MoveCommandRPCRate = 0.1f;
 
-	// Rate at which we update our client controllers CurrentCursor data.
+	// Rate at which we update our client controllers current cursor data.
 	UpdateCursorDataRate = 0.02f;
 
 	// Set some mouse defaults
@@ -28,27 +26,31 @@ ATDMPlayerController::ATDMPlayerController()
 	bEnableTouchEvents = false;
 }
 
-void ATDMPlayerController::Possess(APawn* aPawn)
+FVector ATDMPlayerController::GetTargetLocation(AActor* RequestedBy /*= nullptr*/) const
 {
-	Super::Possess(aPawn);
+	return TargetLocation;
+}
 
-	// Ensure we are only doing this server side
-	if (Role == ROLE_Authority)
-	{
-		FTransform SpawnTransform;
-		SpawnTransform = aPawn->GetActorTransform();
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+AActor* ATDMPlayerController::GetHoveredActor()
+{
+	return HoveredActor;
+}
 
-		// Spawn the Character we will control and cache a reference
-		ControlledCharacter = (ATDMCharacter*) GetWorld()->SpawnActor(SpawnCharacterClass, &SpawnTransform, SpawnParams);
+AActor* ATDMPlayerController::GetSelectedActor()
+{
+	return SelectedActor;
+}
 
-		// Spawn the AIController that will handle pathfinding replicated movement and cache a reference
-		CharacterAIController = (AAIController*) GetWorld()->SpawnActor(AAIController::StaticClass(), &SpawnTransform, SpawnParams);
+AActor* ATDMPlayerController::GetTargetActor()
+{
+	return TargetActor;
+}
 
-		// Set the AIController to Possess the Character
-		CharacterAIController->Possess(ControlledCharacter);
-	}
+void ATDMPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATDMPlayerController, TargetActor);
 }
 
 void ATDMPlayerController::BeginPlay()
@@ -67,84 +69,26 @@ void ATDMPlayerController::Tick(float DeltaSeconds)
 
 }
 
-ATDMCharacter* ATDMPlayerController::GetControlledCharacter()
-{
-	return ControlledCharacter;
-}
-
-AAIController* ATDMPlayerController::GetCharacterAIController()
-{
-	return CharacterAIController;
-}
-
 void ATDMPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// Bind action inputs
-	InputComponent->BindAction("MoveCommand", IE_Pressed, this, &ATDMPlayerController::MoveCommandKeyPressed);
-	InputComponent->BindAction("MoveCommand", IE_Released, this, &ATDMPlayerController::MoveCommandKeyReleased);
-}
-
-void ATDMPlayerController::MoveCommandKeyPressed()
-{
-	// Start our MoveCommand Timer
-	ClientUpdateCurrentCursorData();
-	GetWorldTimerManager().SetTimer(MoveCommandTimerHandle, this, &ATDMPlayerController::ClientSendMoveCommand, MoveCommandRPCRate, true, 0.0f);
-}
-
-void ATDMPlayerController::MoveCommandKeyReleased()
-{
-	// Stop our MoveCommand Timer
-	GetWorldTimerManager().ClearTimer(MoveCommandTimerHandle);
-}
-
-void ATDMPlayerController::ClientSendMoveCommand_Implementation()
-{
-	ServerMoveCommand(CurrentCursorHitResult);
 }
 
 void ATDMPlayerController::ClientUpdateCurrentCursorData_Implementation()
 {
-	// Update CurrentCursorHitResult
-	if (GetHitResultUnderCursorByChannel(TTQ_Targetable, true, CurrentCursorHitResult))
+	// Scan for an actor under the cursor
+	FHitResult CursorHitResult;
+
+	if (GetHitResultUnderCursorByChannel(TTQ_Targetable, true, CursorHitResult))
 	{
-		HoveredActor = CurrentCursorHitResult.GetActor();
+		HoveredActor = CursorHitResult.GetActor();
 	}
 
-
-	// Update CurrentCursorAimedLocation by doing a line trace directly to the floor and getting the hit location
-	FHitResult HitResult;
-
-	GetHitResultUnderCursorByChannel(TTQ_Floor, true, HitResult);
-	CurrentCursorAimedLocation = HitResult.Location;
-}
-
-void ATDMPlayerController::ServerMoveCommand_Implementation(FHitResult CurrentHitResult)
-{
-	// Implement movement
-
-	if (CharacterAIController)
+	// Scan for the floor to update our current TargetLocation
+	if (GetHitResultUnderCursorByChannel(TTQ_Floor, true, CursorHitResult))
 	{
-		TargetActor = CurrentHitResult.GetActor();
-
-		if (!TargetActor->IsNULL())
-		{
-			if (TargetActor->IsFloor())
-			{
-				CharacterAIController->MoveToLocation(CurrentHitResult.Location);
-			}
-			else
-			{
-				CharacterAIController->MoveToActor(CastChecked<AActor>(TargetActor.GetObject()));
-			}
-		}
+		TargetLocation = CursorHitResult.Location;
 	}
-
-}
-
-bool ATDMPlayerController::ServerMoveCommand_Validate(FHitResult CurrentHitResult)
-{
-	return true;
 }
 

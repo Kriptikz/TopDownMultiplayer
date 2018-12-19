@@ -24,38 +24,30 @@ public:
 	ATDMPlayerController();
 
 protected:
-
-	/** The class of the character we want to spawn and control */
-	UPROPERTY(EditDefaultsOnly, Category = "Character")
-	TSubclassOf<ATDMCharacter> SpawnCharacterClass;
-
-	/** Our Currently controlled character */
-	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	ATDMCharacter* ControlledCharacter;
-
-	/** Our Currently controlled characters AI controller */
-	UPROPERTY(BlueprintReadOnly, Category = "Character")
-	AAIController* CharacterAIController;
 	
 	/** The rate at which we call our ClientUpdateCurrentCursorData function while the timer is active */
 	UPROPERTY(EditDefaultsOnly, Category = "Rates")
 	float UpdateCursorDataRate;
 
-	/** Current client cursor hit result, updated using ClientUpdateCurrentCursorData  */
-	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
-	FHitResult CurrentCursorHitResult;
+	/** Handle for our timer that updates cursor data on the client based on the UpdateCursorDataRate */
+	UPROPERTY()
+	FTimerHandle UpdateCursorDataTimerHandle;
 
-	/** The currently hovered actor that is targetable */
-	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
-	TScriptInterface<ITargetableInterface> HoveredActor;
+	/** Current client cursor target location on the floor, this is primarily updated on the client and should be sent to the server when needed. */
+	UPROPERTY(BlueprintReadOnly, Category = "CursorTargetData")
+	FVector TargetLocation;
 
-	/** The currently selected actor */
-	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
-	TScriptInterface<ITargetableInterface> SelectedActor;
+	/** Current client hovered actor that is targetable, this should be the most up to date targetable actor variable on the client and should be sent to the server when needed. */
+	UPROPERTY(BlueprintReadOnly, Category = "CursorTargetData")
+	AActor* HoveredActor;
 
-	/** The currently targeted actor */
-	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
-	TScriptInterface<ITargetableInterface> TargetActor;
+	/** The currently selected actor, this should always be up to date on the server and then replicated to the clients */
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "CursorTargetData")
+	AActor* SelectedActor;
+
+	/** The currently targeted actor, this should always be up to date on the server and then replicated to the clients */
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "CursorTargetData")
+	AActor* TargetActor;
 
 	/** A conversion of our ECC_Floor trace channel to an ETraceTypeQuery */
 	UPROPERTY()
@@ -65,18 +57,6 @@ protected:
 	UPROPERTY()
 	TEnumAsByte<ETraceTypeQuery> TTQ_Targetable;
 
-	/** Current client cursor aimed location on the floor */
-	UPROPERTY(BlueprintReadOnly, Category = "Cursor")
-	FVector_NetQuantize CurrentCursorAimedLocation;
-
-	/** Timer that updates our current cursor data every 0.1s */
-	UPROPERTY()
-	FTimerHandle UpdateCursorDataTimerHandle;
-
-	/** The rate at which we call our ServerMoveCommand RPC while the MoveCommand key is pressed */
-	UPROPERTY(EditDefaultsOnly, Category = "Rates")
-	float MoveCommandRPCRate;
-
 	/** Timer runs based on our MoveCommandRPCRate to call the ServerMoveCommand and pass in the CurrentHitResult */
 	UPROPERTY()
 	FTimerHandle MoveCommandTimerHandle;
@@ -84,28 +64,8 @@ protected:
 	/** This is where we setup our input delegates. These will call local functions which will send an RPC to call the server side version. */
 	virtual void SetupInputComponent() override;
 
-	/** Client function called for when the move command key is pressed, it will start our timer that calls our ClientSendMoveCommand function. */
-	UFUNCTION()
-	void MoveCommandKeyPressed();
-
-	/** Client function called for when the move command is released, it will stop our timer that calls our CliendSendMoveCommand. */
-	UFUNCTION()
-	void MoveCommandKeyReleased();
-
-	/** Client function delegate used in our timer that is send in MoveCommandKeyPressed() */
-	UFUNCTION(Client, Reliable)
-	void ClientSendMoveCommand();
-
 	/**
-	 * Server function called from a timer every 0.1 seconds to handle updating our target goal/actor
-	 *
-	 * @param CurrentHitResult The FHitResult in the PlayerController on the client at the time this function was called
-	 */
-	UFUNCTION(Server, WithValidation, Reliable)
-	void ServerMoveCommand(FHitResult CurrentHitResult);
-
-	/**
-	 * Delegate function called from a timer every 0.1 seconds to handle updating our controller variables: CurrentCursorHitResult CurrentCursorAimedLocation
+	 * Delegate function called from a timer using UpdateCursorDataRate to handle updating our client-side cursor target data: CurrentCursorHitResult CurrentCursorAimedLocation
 	 */
 	UFUNCTION(Client, Reliable)
 	void ClientUpdateCurrentCursorData();
@@ -116,13 +76,16 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 
-	
-	virtual void Possess(APawn* aPawn) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
-	UFUNCTION(BlueprintCallable)
-	ATDMCharacter* GetControlledCharacter();
+	virtual FVector GetTargetLocation(AActor* RequestedBy = nullptr) const override;
 
-	UFUNCTION(BlueprintCallable)
-	AAIController* GetCharacterAIController();
+	UFUNCTION(BlueprintPure)
+	AActor* GetHoveredActor();
 
+	UFUNCTION(BlueprintPure)
+	AActor* GetSelectedActor();
+
+	UFUNCTION(BlueprintPure)
+	AActor* GetTargetActor();
 };
