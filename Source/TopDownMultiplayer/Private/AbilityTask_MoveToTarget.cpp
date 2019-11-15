@@ -9,8 +9,6 @@ UAbilityTask_MoveToTarget::UAbilityTask_MoveToTarget(const FObjectInitializer& O
 	: Super(ObjectInitializer)
 {
 	bTickingTask = true;
-
-	Range = 10.0f;
 }
 
 UAbilityTask_MoveToTarget* UAbilityTask_MoveToTarget::MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, float Range, FVector TargetLocation, AActor* TargetActor)
