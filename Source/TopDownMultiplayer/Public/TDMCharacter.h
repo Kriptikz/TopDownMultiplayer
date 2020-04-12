@@ -26,10 +26,10 @@ protected:
 	UAbilitySystemComponent* AbilitySystem;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
-	TSubclassOf<class UGameplayAbility> Ability;
+	TArray<TSubclassOf<class UGameplayAbility>> GameplayAbilities;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
-	TSubclassOf<class UGameplayAbility> Ability2;
+	UPROPERTY()
+	int32 bAbilitiesInitialized;
 
 	// The targetable type of this actor
 	UPROPERTY(EditDefaultsOnly, Category = "Target")

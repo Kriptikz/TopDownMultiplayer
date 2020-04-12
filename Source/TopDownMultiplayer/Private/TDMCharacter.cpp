@@ -14,6 +14,7 @@ ATDMCharacter::ATDMCharacter()
 	AbilitySystem->SetIsReplicated(true);
 
 	TargetableType = ETargetableType::TT_Attackable;
+	bAbilitiesInitialized = false;
 }
 
 void ATDMCharacter::PossessedBy(AController* NewController)
@@ -43,14 +44,15 @@ void ATDMCharacter::BeginPlay()
 	{
 		if (HasAuthority())
 		{
-			if (Ability)
+			for (TSubclassOf<class UGameplayAbility>& StartupAbility : GameplayAbilities)
 			{
-				AbilitySystem->GiveAbility(FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, 0));
+				if (StartupAbility)
+				{
+					AbilitySystem->GiveAbility(FGameplayAbilitySpec(StartupAbility, 1, 0));
+				}
 			}
-			if (Ability2)
-			{
-				AbilitySystem->GiveAbility(FGameplayAbilitySpec(Ability2.GetDefaultObject(), 1, 0));
-			}
+
+			bAbilitiesInitialized = true;
 		}
 
 		AbilitySystem->InitAbilityActorInfo(this,  this);
