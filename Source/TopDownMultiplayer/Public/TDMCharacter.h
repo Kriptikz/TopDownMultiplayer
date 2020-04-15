@@ -10,6 +10,7 @@
 
 class UAbilitySystemComponent;
 
+
 UCLASS()
 class TOPDOWNMULTIPLAYER_API ATDMCharacter : public ACharacter, public IAbilitySystemInterface, public ITargetableInterface
 {
@@ -27,6 +28,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abilities)
 	TArray<TSubclassOf<class UGameplayAbility>> GameplayAbilities;
+
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Target")
+	AActor* TargetActor;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Target")
+	FVector TargetLocation;
 
 	UPROPERTY()
 	int32 bAbilitiesInitialized;
@@ -53,6 +60,14 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintPure)
+	AActor* GetTargetActor();
+
+	UFUNCTION(BlueprintPure)
+	FVector GetTargetLocation();
 
 	
 	

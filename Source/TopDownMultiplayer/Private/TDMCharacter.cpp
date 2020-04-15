@@ -17,6 +17,11 @@ ATDMCharacter::ATDMCharacter()
 	bAbilitiesInitialized = false;
 }
 
+void ATDMCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 void ATDMCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -76,5 +81,15 @@ void ATDMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 UAbilitySystemComponent* ATDMCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystem;
+}
+
+FVector ATDMCharacter::GetTargetLocation()
+{
+	return TargetLocation;
+}
+
+AActor* ATDMCharacter::GetTargetActor()
+{
+	return TargetActor;
 }
 
