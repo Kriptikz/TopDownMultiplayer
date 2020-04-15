@@ -11,11 +11,12 @@ UAbilityTask_MoveToTarget::UAbilityTask_MoveToTarget(const FObjectInitializer& O
 	bTickingTask = true;
 }
 
-UAbilityTask_MoveToTarget* UAbilityTask_MoveToTarget::MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, float Range, FVector TargetLocation, AActor* TargetActor)
+UAbilityTask_MoveToTarget* UAbilityTask_MoveToTarget::MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, float Range, FVector TargetLocation, AActor* TargetActor, ATDMCharacter* OwningCharacter)
 {
 	UAbilityTask_MoveToTarget* NewAbilityTaskObject = NewAbilityTask<UAbilityTask_MoveToTarget>(OwningAbility, TaskInstanceName);
 	NewAbilityTaskObject->TargetLocation = TargetLocation;
 	NewAbilityTaskObject->TargetActor = TargetActor;
+	NewAbilityTaskObject->OwningCharacter = OwningCharacter;
 	
 	if (Range < 10.0f)
 	{
@@ -37,9 +38,10 @@ void UAbilityTask_MoveToTarget::TickTask(float DeltaTime)
 	ATDMCharacter* MyCharacter = Cast<ATDMCharacter>(GetAvatarActor());
 	if (MyCharacter)
 	{
-		if (TargetActor)
+		//if (TargetActor)
+		if (TargetActor && OwningCharacter->GetTargetActor())
 		{
-			FVector ZeroZTargetLocation = TargetActor->GetActorLocation();
+			FVector ZeroZTargetLocation = OwningCharacter->GetTargetActor()->GetActorLocation();
 			ZeroZTargetLocation.Z = 0;
 
 			FVector ZeroZCharacterLocation = MyCharacter->GetActorLocation();
@@ -59,7 +61,7 @@ void UAbilityTask_MoveToTarget::TickTask(float DeltaTime)
 		}
 		else
 		{
-			FVector ZeroZTargetLocation = TargetLocation;
+			FVector ZeroZTargetLocation = OwningCharacter->GetTargetLocation();
 			ZeroZTargetLocation.Z = 0;
 
 			FVector ZeroZCharacterLocation = MyCharacter->GetActorLocation();
@@ -86,5 +88,6 @@ void UAbilityTask_MoveToTarget::GetLifetimeReplicatedProps(TArray<class FLifetim
 	DOREPLIFETIME(UAbilityTask_MoveToTarget, TargetLocation);
 	DOREPLIFETIME(UAbilityTask_MoveToTarget, TargetActor);
 	DOREPLIFETIME(UAbilityTask_MoveToTarget, Range);
+	DOREPLIFETIME(UAbilityTask_MoveToTarget, OwningCharacter);
 }
 

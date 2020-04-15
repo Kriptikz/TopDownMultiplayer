@@ -6,8 +6,6 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "AbilityTask_MoveToTarget.generated.h"
 
-
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveToTargetDelegate);
 
 /**
@@ -23,9 +21,12 @@ class TOPDOWNMULTIPLAYER_API UAbilityTask_MoveToTarget : public UAbilityTask
 
 	/** Move to the specified location, using the vector curve (range 0 - 1) if specified, otherwise the float curve (range 0 - 1) or fallback to linear interpolation */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-	static UAbilityTask_MoveToTarget* MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, float Range, FVector TargetLocation, AActor* TargetActor);
+	static UAbilityTask_MoveToTarget* MoveToTarget(UGameplayAbility* OwningAbility, FName TaskInstanceName, float Range, FVector TargetLocation, AActor* TargetActor, ATDMCharacter* OwningCharacter);
 
 protected:
+
+	UPROPERTY(Replicated)
+	ATDMCharacter* OwningCharacter;
 
 	UPROPERTY(Replicated)
 	FVector TargetLocation;
