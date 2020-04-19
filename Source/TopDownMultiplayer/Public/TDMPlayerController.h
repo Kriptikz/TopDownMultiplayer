@@ -35,7 +35,7 @@ protected:
 
 	/** Current client cursor target location on the floor, this is primarily updated on the client and should be sent to the server when needed. */
 	UPROPERTY(BlueprintReadOnly, Category = "CursorTargetData")
-	FVector TargetLocation;
+	FVector CursorAimLocation;
 
 	/** Current client hovered actor that is targetable, this should be the most up to date targetable actor variable on the client and should be sent to the server when needed. */
 	UPROPERTY(BlueprintReadOnly, Category = "CursorTargetData")
@@ -78,7 +78,6 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
-	virtual FVector GetTargetLocation(AActor* RequestedBy = nullptr) const override;
 
 	UFUNCTION(BlueprintPure)
 	AActor* GetHoveredActor();
@@ -88,4 +87,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	AActor* GetTargetActor();
+
+	UFUNCTION(BlueprintPure)
+	FVector GetCursorAimLocation();
 };

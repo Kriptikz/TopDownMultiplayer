@@ -83,9 +83,9 @@ UAbilitySystemComponent* ATDMCharacter::GetAbilitySystemComponent() const
 	return AbilitySystem;
 }
 
-FVector ATDMCharacter::GetTargetLocation()
+FVector ATDMCharacter::GetObjectiveLocation()
 {
-	return TargetLocation;
+	return ObjectiveLocation;
 }
 
 AActor* ATDMCharacter::GetTargetActor()

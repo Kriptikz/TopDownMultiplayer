@@ -16,7 +16,7 @@ void AGameplayAbilityTargetActor_CursorTargetData::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
-		FVector NewTargetLocation = PlayerController->GetTargetLocation();
+		FVector NewTargetLocation = PlayerController->GetCursorAimLocation();
 		AActor* NewTargetActor = PlayerController->GetHoveredActor();
 		TArray<TWeakObjectPtr<AActor> > NewTargetActorArray;
 		if (NewTargetActor)

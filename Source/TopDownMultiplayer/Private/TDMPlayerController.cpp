@@ -26,10 +26,6 @@ ATDMPlayerController::ATDMPlayerController()
 	bEnableTouchEvents = false;
 }
 
-FVector ATDMPlayerController::GetTargetLocation(AActor* RequestedBy /*= nullptr*/) const
-{
-	return TargetLocation;
-}
 
 AActor* ATDMPlayerController::GetHoveredActor()
 {
@@ -44,6 +40,11 @@ AActor* ATDMPlayerController::GetSelectedActor()
 AActor* ATDMPlayerController::GetTargetActor()
 {
 	return TargetActor;
+}
+
+FVector ATDMPlayerController::GetCursorAimLocation()
+{
+	return CursorAimLocation;
 }
 
 void ATDMPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -88,7 +89,7 @@ void ATDMPlayerController::ClientUpdateCurrentCursorData_Implementation()
 	// Scan for the floor to update our current TargetLocation
 	if (GetHitResultUnderCursorByChannel(TTQ_Floor, true, CursorHitResult))
 	{
-		TargetLocation = CursorHitResult.Location;
+		CursorAimLocation = CursorHitResult.Location;
 	}
 }
 

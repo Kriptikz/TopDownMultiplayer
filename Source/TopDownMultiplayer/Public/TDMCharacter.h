@@ -33,7 +33,7 @@ protected:
 	AActor* TargetActor;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Target")
-	FVector TargetLocation;
+	FVector ObjectiveLocation;
 
 	UPROPERTY()
 	int32 bAbilitiesInitialized;
@@ -67,7 +67,7 @@ public:
 	AActor* GetTargetActor();
 
 	UFUNCTION(BlueprintPure)
-	FVector GetTargetLocation();
+	FVector GetObjectiveLocation();
 
 	
 	
