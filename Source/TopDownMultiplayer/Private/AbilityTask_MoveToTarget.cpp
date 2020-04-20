@@ -61,7 +61,7 @@ void UAbilityTask_MoveToTarget::TickTask(float DeltaTime)
 		}
 		else
 		{
-			FVector ZeroZTargetLocation = OwningCharacter->GetTargetLocation();
+			FVector ZeroZTargetLocation = OwningCharacter->GetObjectiveLocation();
 			ZeroZTargetLocation.Z = 0;
 
 			FVector ZeroZCharacterLocation = MyCharacter->GetActorLocation();
