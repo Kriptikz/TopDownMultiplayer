@@ -14,4 +14,7 @@ class TOPDOWNMULTIPLAYER_API ATDMAIController : public AAIController
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+
 };
