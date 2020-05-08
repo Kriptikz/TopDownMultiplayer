@@ -2,6 +2,7 @@
 
 #include "TDMCharacter.h"
 #include "AbilitySystemComponent.h"
+#include "UnrealNetwork.h"
 
 
 // Sets default values
@@ -20,6 +21,8 @@ ATDMCharacter::ATDMCharacter()
 void ATDMCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATDMCharacter, TargetActor);
 }
 
 void ATDMCharacter::PossessedBy(AController* NewController)
